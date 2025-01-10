@@ -117,3 +117,30 @@ def test_service_create_with_profile_fail_no_password(clean_database):
 
     assert UserRepository().count() == 0
     assert UserProfileRepository().count() == 0
+
+
+def test_login_unsuccessful_no_data(test_client):
+    response = test_client.post(
+        "/login", data=dict(email="", password=""), follow_redirects=True
+    )
+
+    assert response.request.path == url_for("auth.login"), "Login was unsuccessful"
+
+    test_client.get("/logout", follow_redirects=True)
+
+def count_up(clean_database):
+    
+    cont = UserRepository().count()
+    cont2 = UserProfileRepository().count()
+
+    data = {
+        "name": "Test",
+        "surname": "Foo",
+        "email": "service_test@example.com",
+        "password": "test1234"
+    }
+
+    AuthenticationService().create_with_profile(**data)
+
+    assert cont == cont + 1
+    assert cont2 == cont2 + 1
